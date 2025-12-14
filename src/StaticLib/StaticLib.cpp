@@ -69,19 +69,73 @@ bool add(tree* t, int key, const char* value)
 	}
 
 	// Todo: t->rootの下にkeyの値の大小でleftかrightを切り替えながらpを追加する処理を実装する
+	node* cur = t->root;
 
-	return true;
+	while (1) {
+		if (key < cur->key) {
+			if (cur->left != NULL) {
+				cur = cur->left;
+			}
+			else {
+				cur->left = p;
+				return true;
+			}
+		}
+		else if (key > cur->key) {
+			if (cur->right != NULL) {
+				cur = cur->right;
+			}
+			else {
+				cur->right = p;
+				return true;
+			}
+		}
+		else {
+			size_t len = (value == NULL) ? 0 : strlen(value);
+			if (len > 255) len = 255;
+			if (len > 0) memcpy(cur->value, value, len);
+			cur->value[len] = '\0';
+
+			free(p);
+			return true;
+		}
+	}
 }
 
 // keyの値を見てノードを検索して、値を取得する
 const char* find(const tree* t, int key)
 {
 	// ToDo: 実装する
+	if (t == NULL) return NULL;
+
+	const node* cur = t->root;
+
+	while (cur != NULL) {
+		if (key < cur->key) {
+			cur = cur->left;
+		}
+		else if (key > cur->key) {
+			cur = cur->right;
+		}
+		else {
+			return cur->value;
+		}
+	}
 	return NULL;
 }
 
 // keyの小さな順にコールバック関数funcを呼び出す
+static void InOrder(const node* n, void (*func)(const node* p))
+{
+	if (n == NULL) return;
+
+	InOrder(n->left, func);
+	func(n);
+	InOrder(n->right, func);
+}
 void search(const tree* t, void (*func)(const node* p))
 {
 	// ToDo: 実装する
+	if (t == NULL || func == NULL) return;
+	InOrder(t->root, func);
 }
